@@ -32,6 +32,7 @@ https://www.aise.ics.saitama-u.ac.jp/~gotoh/DS100KnocksOnUbuntu2004InWSL2.html
 　　　https://note.nkmk.me/python-pandas-reset-index/
 - apply()とは、DataFrame, Series型に備わっているメソッドの一つで、groupbyされたDataFrameにおける各々のvalueを引数として、apply()の引数に与えられた関数のreturn値を返すことができる。  
 `groupby('store_cd').product_cd.apply(関数).reset_index()`  
+複数列にまたがる自作関数はaxis=1とする必要があることに注意  
 参考：https://qiita.com/hisato-kawaji/items/0c66969343a196a65cee
 - 無名関数（ラムダ式）：`変数 = lambda 引数1, 引数2 : 式`  
 `apply(lambda x: x.mode())` のようにも使える
@@ -59,9 +60,9 @@ https://www.aise.ics.saitama-u.ac.jp/~gotoh/DS100KnocksOnUbuntu2004InWSL2.html
     参考：https://wa3.i-3-i.info/word15315.html
 - 欠損値の扱い
     - NaNを削除：`dropna()`
-    - NaNを置換：`fillna(value)`
+    - NaNを置換（列ごと）：`fillna({key:value})`
     - NaNを補間：`interpolate()`
-    - NaNをカウント：`isnull()`  
+    - NaNをカウント：`isnull().sum()`  
 参考：https://note.nkmk.me/python-pandas-nan-dropna-fillna/
 - 重複した行の抽出：`pd.dataframe.duplicated()`  
 引数subsetで重複を判定する列を指定できる  
@@ -130,3 +131,40 @@ UNIX秒からの変換の場合、引数としてunit='s'を指定
     - 自然対数化（底e）：`np.log(data + 1)`  
 対数化では真数条件に引っかからないように1を加えている
 - 重複したデータを削除：`pd.dataframe.drop_duplicates()`
+### 2022/07/14 Problem71~80まで
+- 経過時間を計算する：`relativedelta(x1, x2)`
+- 日付をエポック秒に変換：`datetime.strftime('%s')`
+- 日付の曜日を月曜日からの経過日数として取得：`datetime.weekday()`
+- 無作為抽出法：`df.sample(frac=0.01)`
+- 無作為抽出法では試行によってはサブセットに偏りができる場合もあった  
+この問題を解決するのが層化抽出法
+```
+# アンダースコアは慣例的に、必要のない値の代入先として使用される
+_, df_tmp = train_test_split(df_customer, test_size=0.1, 
+                             stratify=df_customer['gender_cd'])
+```
+- preprocessing.scale()を用いることで、平均から3σを超えて離れた外れ値を抽出しやすくなる
+- pd.dataframe.query('')内で変数にアクセスしたいとき：'@変数名'
+```
+df_tmp.query('amount < @amount_low or @amount_hight < amount')
+```
+### 2022/07/15 Problem81~90まで
+- 条件を満たすデータをマスクし、値を代入する
+```
+pd.dataframe.mask(条件, 値)
+```
+- apply()はfor文処理で遅いため、できるならnumpyを使って計算させたい
+- 値が最も大きいものを残して重複を削除  
+→値が大きい順にソートしてから、上のデータを残して重複を削除
+```
+df_customer_tmp.sort_values(['customer_id', 'amount'], \
+                            ascending=[False, True], inplace=True)
+
+df_customer_tmp.drop_duplicates(
+                subset=['customer_name', 'postal_cd'], 
+                keep='first', inplace=True)
+```
+- 8:2の割合でランダムに学習用データとテスト用データに分割
+```
+df_train, df_test = train_test_split(df_customer_tmp, test_size=0.2)
+```
