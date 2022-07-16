@@ -1,8 +1,100 @@
-## 環境構築
+# 環境構築
 WSL2上のUbuntu 20.04LTSでデータサイエンス100本ノック  
 https://www.aise.ics.saitama-u.ac.jp/~gotoh/DS100KnocksOnUbuntu2004InWSL2.html
-## Python
-### 2022/07/11 Problem1~18まで
+# Python
+## モジュール、パッケージ、ライブラリの説明
+- Pythonモジュールとは、Pythonのコードをまとめたファイル
+- パッケージとは、複数のモジュールがフォルダに集まったもの
+- ライブラリとは、フォルダやファイルが集まったもの
+- サイドパーティ・ライブラリはpip（The Python Package Installer）を用いてインストールする
+```
+$ pip install --upgrade pip
+$ pip install numpy
+$ pip install pandas
+$ pip install scikit-learn
+$ pip install python-dateutil
+$ pip install psycopg2
+$ pip install sqlalchemy
+```
+## それぞれのモジュールの説明
+```
+import os
+```
+- OSの機能を利用するためのモジュール。主にファイルやディレクトリ操作が可能で、ファイルの一覧やpathを取得できたり、新規にファイル・ディレクトリを作成することができる  
+参考：https://www.sejuku.net/blog/67787  
+- Operating System(OS)：ユーザーとハードウェア、応用ソフトウェアとハードウェアをつなぐもの
+```
+import pandas as pd
+```
+- Pandas(パンダス)とは、データ解析のためのサイドパーティ・ライブラリ。データ分析作業を支援するためのモジュールが含まれており、表形式のデータをSQLまたはRのように操作するために用いる  
+参考：https://utokyo-ipp.github.io/7/7-1.html
+```
+import numpy as np
+```
+- 多次元配列を効率的に扱うための外部パッケージ。ベクトルや行列の演算を効率的にすることができる
+```
+from datetime import datetime, date
+```
+- 標準ライブラリのdatetimeモジュールからdatetime, dateというオブジェクトをインポートする  
+参考：https://docs.python.org/3/library/datetime.html#datetime-objects
+```
+from dateutil.relativedelta import relativedelta
+```
+- dateutil：標準のdatetimeモジュールに強力な拡張機能を提供するモジュール  
+参考：https://dateutil.readthedocs.io/en/stable/
+```
+import math
+```
+- 数学的な計算をするのに役立つ標準モジュール
+```
+import psycopg2
+```
+- PythonからPostgreSQLへアクセスするための外部ライブラリ。SQL文を実行することが可能   
+参考：https://resanaplaza.com/2021/09/08/%E3%80%90-python-%E3%80%91psycopg2%E3%81%A7postgresql%E3%81%AB%E3%82%A2%E3%82%AF%E3%82%BB%E3%82%B9%E3%81%97%E3%82%88%E3%81%86%EF%BC%81/  
+DBからデータを読み取り、pythonで分析したい場合は以下のようにする
+```
+pgconfig = {
+    'host': 'db',
+    'port': os.environ['PG_PORT'],
+    'database': os.environ['PG_DATABASE'],
+    'user': os.environ['PG_USER'],
+    'password': os.environ['PG_PASSWORD'],
+}
+
+# pd.read_sql用のコネクタ
+conn = psycopg2.connect(**pgconfig)
+
+df_customer = pd.read_sql(sql='select * from customer', con=conn)
+df_category = pd.read_sql(sql='select * from category', con=conn)
+df_product = pd.read_sql(sql='select * from product', con=conn)
+df_receipt = pd.read_sql(sql='select * from receipt', con=conn)
+df_store = pd.read_sql(sql='select * from store', con=conn)
+df_geocode = pd.read_sql(sql='select * from geocode', con=conn)
+```
+```
+from sqlalchemy import create_engine
+```
+- ORM：sqlalchemyをインポートする  
+Object Relational Mapper(ORM)とは、テーブルとクラスを1対1に対応させて、そのクラスのメソッド経由でデータを取得したり、変更したりできるようにする存在。
+- ORMを使用することで
+    - 複数のDBを併用する場合やDBを変更する場合にも、コードの書き換えの必要がなくなる
+    - SQLAlchemyを使うとSQLを直接記述することなしに、DBを"Pythonic"に操作できる  
+参考：https://qiita.com/arkuchy/items/75799665acd09520bed2
+```
+from sklearn import preprocessing
+from sklearn.impute import SimpleImputer
+from sklearn.model_selection import train_test_split
+from sklearn.model_selection import TimeSeriesSplit
+from imblearn.under_sampling import RandomUnderSampler
+```
+- scikit-learn：様々な機械学習の手法が統一的なインターフェースで利用できる外部ライブラリ。  
+ndarrayでデータやパラメータを取り扱うため、他のライブラリとの連携もしやすい
+    - preprocessing：データの前処理に用いる
+    - SimpleImputer：欠損値の補間に用いる
+    - train_test_split：データの分割に用いる
+    - TimeSeriesSplit：時系列データを用いた交差検証をするために用いる
+    - RandomUnderSampler：不均衡なデータのアンダーサンプリングに用いる
+## 2022/07/11 Problem1~18まで
 - データの列を指定して抽出
 - 項目名を変更しながら抽出：`pd.dataframe.rename(columns='':'')`  
 参考：https://note.nkmk.me/python-pandas-dataframe-rename/
@@ -15,7 +107,7 @@ https://www.aise.ics.saitama-u.ac.jp/~gotoh/DS100KnocksOnUbuntu2004InWSL2.html
 - データフレームのソート：`pd.dataframe.sort_values('列', ascending=True)`  
 参考：https://note.nkmk.me/python-pandas-sort-values-sort-index/
 
-### 2022/07/12 Problem19~39まで
+## 2022/07/12 Problem19~39まで
 - データの件数のカウント：`len(dataframe)`
 - ユニーク件数のカウント：`pd.dataframe.nunique()`  
 参考：https://note.nkmk.me/python-pandas-value-counts/
@@ -31,7 +123,7 @@ https://www.aise.ics.saitama-u.ac.jp/~gotoh/DS100KnocksOnUbuntu2004InWSL2.html
 参考：https://vector-ium.com/pandas-agg/  
 　　　https://note.nkmk.me/python-pandas-reset-index/
 - apply()とは、DataFrame, Series型に備わっているメソッドの一つで、groupbyされたDataFrameにおける各々のvalueを引数として、apply()の引数に与えられた関数のreturn値を返すことができる。  
-`groupby('store_cd').product_cd.apply(関数).reset_index()`  
+`groupby('store_cd').product_cd.apply(関数, axis=1).reset_index()`  
 複数列にまたがる自作関数はaxis=1とする必要があることに注意  
 参考：https://qiita.com/hisato-kawaji/items/0c66969343a196a65cee
 - 無名関数（ラムダ式）：`変数 = lambda 引数1, 引数2 : 式`  
@@ -69,7 +161,7 @@ https://www.aise.ics.saitama-u.ac.jp/~gotoh/DS100KnocksOnUbuntu2004InWSL2.html
 データフレームから重複しているデータを削除する↓  
 `df_data[~df_data.duplicated(subset=["", ""])`  
 参考：https://note.nkmk.me/python-pandas-duplicated-drop-duplicates/
-### 2022/07/13 Problem40~70まで
+## 2022/07/13 Problem40~70まで
 - pythonにはcross join(直積結合)の機能がないため、cross join用のキーを新たに作成して完全外部結合することで疑似的に直積結合できる
 ```
 df_store_tmp['key'] = 0 # cross join用のキー
@@ -131,28 +223,31 @@ UNIX秒からの変換の場合、引数としてunit='s'を指定
     - 自然対数化（底e）：`np.log(data + 1)`  
 対数化では真数条件に引っかからないように1を加えている
 - 重複したデータを削除：`pd.dataframe.drop_duplicates()`
-### 2022/07/14 Problem71~80まで
+## 2022/07/14 Problem71~80まで
 - 経過時間を計算する：`relativedelta(x1, x2)`
 - 日付をエポック秒に変換：`datetime.strftime('%s')`
-- 日付の曜日を月曜日からの経過日数として取得：`datetime.weekday()`
+- 日付の曜日を月曜日からの経過日数として取得：`datetime.weekday()`  
+参考：https://kino-code.com/python-datetime-weekday/
 - 無作為抽出法：`df.sample(frac=0.01)`
 - 無作為抽出法では試行によってはサブセットに偏りができる場合もあった  
 この問題を解決するのが層化抽出法
 ```
-# アンダースコアは慣例的に、必要のない値の代入先として使用される
 _, df_tmp = train_test_split(df_customer, test_size=0.1, 
                              stratify=df_customer['gender_cd'])
 ```
+アンダースコアは慣例的に、必要のない値の代入先として使用される  
+参考：https://mako-note.com/ja/python-underscore/
 - preprocessing.scale()を用いることで、平均から3σを超えて離れた外れ値を抽出しやすくなる
 - pd.dataframe.query('')内で変数にアクセスしたいとき：'@変数名'
 ```
 df_tmp.query('amount < @amount_low or @amount_hight < amount')
 ```
-### 2022/07/15 Problem81~90まで
+## 2022/07/15 Problem81~90まで
 - 条件を満たすデータをマスクし、値を代入する
 ```
 pd.dataframe.mask(条件, 値)
 ```
+参考：https://kino-code.com/python-pandas-mask/
 - apply()はfor文処理で遅いため、できるならnumpyを使って計算させたい
 - 値が最も大きいものを残して重複を削除  
 →値が大きい順にソートしてから、上のデータを残して重複を削除
