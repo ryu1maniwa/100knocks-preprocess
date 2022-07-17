@@ -1,6 +1,31 @@
 # 環境構築
 WSL2上のUbuntu 20.04LTSでデータサイエンス100本ノック  
 https://www.aise.ics.saitama-u.ac.jp/~gotoh/DS100KnocksOnUbuntu2004InWSL2.html
+# データベースの基礎
+## E-R図
+## デ－タベースの正規化
+- データの重複をなくし整合的にデータを取り扱えるようにデータベースを設計すること。正規化をすることで、データの追加・更新・削除などに伴うデータの不整合や喪失が起きるのを防ぎ、メンテナンスの効率を高めることができる
+- 正規化の段階には、第1～第5正規形およびボイスコッド正規形がある
+### 非正規形
+- 正規化がまったく行われておらず、1行の中に複数の繰り返し項目が存在するようなテーブルのこと
+- リレーショナルデータベース(RDB)では、レコード単位で個々のデータを扱うため、非正規形のデータはデータベースに格納できない
+### 第1正規形
+- 非正規形から第1正規形への正規化
+    - 非正規形の繰り返し項目を別レコードとして独立させたもの
+    - 他のカラムから導出可能な項目を削除しておく
+- データベースに格納できる
+- 独立した情報をすべて同一のレコードで扱っているため、データ管理の観点からは不十分
+### 第2正規形
+- 第1正規形から第2正規形への正規化
+    - レコードを一意に定める要素を主キー(PK)と呼ぶ
+    - いずれのテーブルにおいても非キー属性が主キーに従属するように、データを別テーブルに分離することで第2正規形に正規化できる
+- 一つの変更に対して複数レコードを更新する必要があるため非効率
+### 第3正規形
+- 依存関係のあるデータをわけることでデータの変更を複数でする必要を避ける
+- 第2正規形から第3正規形への正規化
+    - 主キー以外の項目について項目同士で依存関係を持っているもの（推移的関数従属と言う）も、別テーブルに切り分ける
+- 検索効率を考えて、あえて正規化の程度を落とすこともある
+- アプリケーションの利用シーンやパフォーマンス要件などに応じて柔軟にデータベースを設計したい
 # Python
 ## モジュール、パッケージ、ライブラリの説明
 - Pythonモジュールとは、Pythonのコードをまとめたファイル
@@ -88,7 +113,9 @@ from sklearn.model_selection import TimeSeriesSplit
 from imblearn.under_sampling import RandomUnderSampler
 ```
 - scikit-learn：様々な機械学習の手法が統一的なインターフェースで利用できる外部ライブラリ。  
-ndarrayでデータやパラメータを取り扱うため、他のライブラリとの連携もしやすい
+ndarrayでデータやパラメータを取り扱うため、他のライブラリとの連携もしやすい  
+参考：https://tutorials.chainer.org/ja/09_Introduction_to_Scikit-learn.html
+- scikit-learnの一部モジュールの説明
     - preprocessing：データの前処理に用いる
     - SimpleImputer：欠損値の補間に用いる
     - train_test_split：データの分割に用いる
@@ -262,4 +289,26 @@ df_customer_tmp.drop_duplicates(
 - 8:2の割合でランダムに学習用データとテスト用データに分割
 ```
 df_train, df_test = train_test_split(df_customer_tmp, test_size=0.2)
+```
+## 2022/07/16 Problem91~100まで
+- 条件に応じて代入する値を変える：np.where()
+```
+np.where(条件, 0, 1)
+```
+- 不均衡なデータを１：１にアンダーサンプリングする：RandomUnderSampler
+```
+# is_by_flagを基準にdf_tmpをアンダーサンプリング
+rs = RandomUnderSampler(random_state=71)
+df_down_sampling, _ = rs.fit_resample(df_tmp, df_tmp['is_by_flag'])
+```
+- csvファイルへ出力：pd.to_csv
+```
+# コード例2（BOM付きでExcelの文字化けを防ぐ）
+df_product_full.to_csv('data/P_df_product_full_UTF-8BOM_header.csv', 
+                encoding='utf-8-sig', header=True, index=False)
+```
+- csvファイルを読み込む：pd.read_csv
+```
+df_product_full_1 = \
+        pd.read_csv('data/P_df_product_full_UTF-8BOM_header.csv')
 ```
