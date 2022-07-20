@@ -25,7 +25,8 @@ https://www.aise.ics.saitama-u.ac.jp/~gotoh/DS100KnocksOnUbuntu2004InWSL2.html
 - 第2正規形から第3正規形への正規化
     - 主キー以外の項目について項目同士で依存関係を持っているもの（推移的関数従属と言う）も、別テーブルに切り分ける
 - 検索効率を考えて、あえて正規化の程度を落とすこともある
-- アプリケーションの利用シーンやパフォーマンス要件などに応じて柔軟にデータベースを設計したい
+- アプリケーションの利用シーンやパフォーマンス要件などに応じて柔軟にデータベースを設計したい  
+参考：https://oss-db.jp/dojo/dojo_info_04
 # Python
 ## モジュール、パッケージ、ライブラリの説明
 - Pythonモジュールとは、Pythonのコードをまとめたファイル
@@ -312,3 +313,55 @@ df_product_full.to_csv('data/P_df_product_full_UTF-8BOM_header.csv',
 df_product_full_1 = \
         pd.read_csv('data/P_df_product_full_UTF-8BOM_header.csv')
 ```
+# SQL
+## 2022/07/17
+### SQLとは
+- SQLとは「Structured Query Language」の略で、リレーショナルデータベース(RDB)のデータを操作するための言語
+- SQLは「;」までを1文と定義するため、途中で改行しても問題ない
+### SQLでデータベースを操作する方法
+SQLでデータベースを操作するための命令を送るには、2つの方法がある
+- 対話型  
+ユーザーがプログラムのコマンドラインなどでSQLのコマンドを打ち込み、直接操作する方法
+- 埋め込み型  
+Javaなどほかのプログラミング言語で記述したソースコードに直接SQL文を埋め込むことで、SQLをシステムの一部として使用する方法  
+参考：https://hnavi.co.jp/knowledge/blog/sql/
+### DDL・DML・DCL
+SQLの命令文はDDL・DML・DCLの３種類で構成される
+- DDL(データ定義言語)  
+主にデータベースの定義や作成に関わる命令文
+    - CREATE：データベースやテーブルの作成
+    - DROP：データベースやテーブルの削除
+    - ALTER：データベースやテーブルの変更
+    - JOIN：テーブルの結合
+    - TRUNCATE：テーブルのデータを削除
+- DML(データ操作言語)  
+データの取得・登録・更新・削除などのデータ操作に関わる言語
+    - SELECT：データ取得
+    - UPDATE：データ更新
+    - DELETE：データ削除
+    - INSERT：データ挿入
+- DCL(データ制御言語)  
+主にトランザクションの制御やデータベースへのアクセスを制御するためのコマンド
+    - BEGIN：トランザクション開始
+    - COMMIT：実行した処理の確定
+    - ROLLBACK：データの戻し
+    - GRANT：ユーザ権限付与
+    - REVOKE：ユーザ権限剥奪  
+参考：https://udemy.benesse.co.jp/development/system/intro-sql.html
+
+- SQL開発環境には以下が必要
+    - MySQL, PostgreSQLなどのデータベースサーバ
+    - SQLクライアント  
+    SQLクライアントとは、データベースサーバにネットワークを通じて接続するだけでなく、SQLの記述をサポートをするためのソフトウェアのこと  
+    JupyterNotebookではマジックコマンドを使うことでSQL開発環境を作ることができる
+```
+%load_ext sql
+# MagicコマンドでSQLを書くための設定
+%sql $dsl
+# セルマジックコマンド(セル全体に適応)
+%%sql
+```
+参考：https://ai-soldier.work/manipulate-magic-command-jupyterlab/
+## 2022/07/18 Problem1~55
+以下のサイトを参考に解答を写経した  
+参考：https://qiita.com/Strix9289/items/9dfe4c911f6c206ff215
